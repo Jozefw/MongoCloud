@@ -1,5 +1,4 @@
 const path = require('path');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -19,10 +18,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  User.findById("65b000d2914bb48e41838fea")
+  User.findById("65b7f75a914bb48e41839003")
     .then(user => {
       console.log("my user",user)
-      req.user = user;
+      req.user = new User(user.name,user.email,user.cart,user._id);
       next();
     })
     .catch(err => console.log(err));
@@ -34,6 +33,5 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 mongoConnect(() => {
-  
   app.listen(3000);
 });
