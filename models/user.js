@@ -32,7 +32,7 @@ class User {
 
       let newQuantity = 1;
       if (cartProductIndex >=0){
-        newQuantity = this.cart.items[cartProductIndex].quantity +1;
+        newQuantity = this.cart.items[cartProductIndex].quantity + 1;
         updatedCartItems[cartProductIndex].quantity = newQuantity;
       } else {
         updatedCartItems.push({ 
@@ -40,13 +40,34 @@ class User {
           quantity: newQuantity
         })
       }
-      const updatedCart = {items: [{productId: new mongoDB.ObjectId(product._id), quantity:1}]}
+      const updatedCart = {items: updatedCartItems}
       const DB = getDb();
       return DB
       .collection('users')
       .updateOne({_id:new mongoDB.ObjectId(this._id)},
       {$set:{cart:updatedCart}})
     }
+
+    getCart(){
+      const DB = getDb();
+      const prodIds = this.cart.items.map(cartItem=>{console.log('cartItem',cartItem);
+        return cartItem.productId})
+      return DB
+      .collection('products')
+      .find({_id:{$in:prodIds}}).toArray()
+      .then((results) =>{
+        console.log('results in array',results);
+        return results.map(product=>{
+          return {...product,quantity:this.cart.items.find(items=>{return items.productId.toString() === product._id.toString()} ).quantity
+          }
+        })
+      })
+      .catch(( err)=>{
+        console.log("cartItems",err)
+      })
+
+    }
+
 
   static findById(userId){
     const DB = getDb();
