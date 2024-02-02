@@ -77,7 +77,19 @@ class User {
       .updateOne({_id:new mongoDB.ObjectId(this._id)},
       {$set:{cart:{items:updatedCartItems}}});
     }
-
+    addOrder(){
+      const DB = getDb();
+      return DB
+      .collection('orders')
+      .insertOne(this.cart)
+      .then(results=>{
+        this.cart = {items:[]}
+        return DB
+          .collection('users')
+          .updateOne({_id:new mongoDB.ObjectId(this._id)},
+          {$set:{cart:{items:[]}}});
+      })
+    }
   static findById(userId){
     const DB = getDb();
     return DB.collection('users')
